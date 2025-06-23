@@ -236,13 +236,89 @@ eg.
 
 -  creating react application
     npx create-react-app .    (which creates all boiler plate code that we need to create a react application)
+    npx create-react-app . --template typescript         (with typescript)
+
+    -ts & tsx files are same the only difference is tsx file supports jsx. jsx is way of writing HTML within JavaScript
+
+- to Build the static files present in public folder
+    npm run build --verbose         (bundles them up in build folder)
+
+- delpoying this build folder to any static file hosting server.
+- to ourself the static file hosting server
+    npx serve <folder name>
+    npx serve build
+
+- Type Assertion:
+    It means we known better that what machine is understading.
+    const load = (): unknown =>{
+        return 1;
+    }
+    let hello = load();
+    console.log(hello);
+
+    if(typeof hello === 'string'){
+        console.log((hello).trim());
+    }
+
+    // instead of doing above
+    console.log((hello as string).trim());              // this will work in tsx file 
+    // or same as above
+    console.log((<string>hello).trim());                // this will NOT work in tsx file 
+    // TypeScript will not throw an error, because you're saying:
+    // Trust me, this is a string.
+    // But at runtime, hello is a number (1), and calling .trim() on a number causes:
+
+- Type Casting:
+    let leet;           // default type is any
+    leet = '1337'
+    let num = leet as number
+
+    console.log("num === 1337", num === 1337);
+    console.log(num);
+    console.log("num type: ",typeof num);
+
+    // converting it to number
+    // this is called type coersion
+    let num2 = +leet;           // use + sign before variable name
+    console.log("num2 === 1337", num2 === 1337);
+    console.log(num2);
+    console.log("num2 type: ",typeof num2);
+
+- Modules:
+    module.ts:
+        export function isPalindrom(str){
+            return str === str.split('').reverse().join('');
+        }
+    module1.ts
+        import {isPalindrom} from './module';
+        // or
+        import * as until from './module';
+
+        console.log("isPalindrom('racecar')? ", isPalindrom('racecar'));
+        console.log("isPalindrom('car')? ", isPalindrom('car'));
+
+        console.log("until.isPalindrom('racecar')? ",until.isPalindrom('racecar'));
+        console.log("until.isPalindrom('car')? ", until.isPalindrom('car'));
+
+- Type declaration:
+    - all declaration of variable which will be provided by nodeJs is in declaration file
+    - extension is <name>.d.ts
+    eg.
+        env.d.ts
+        declare const process: any;
     
+    npm i @types/node
+    - if installing any external libary like express need to install their respective types
+        npm i @types/express
 
+- To pulibsh our own package
+    npm publish
 
-
-
-
-
-
+- To download npm i <name>
+- to run ts file without
+    npx tsc file_name.ts
+    node file_name.js
+- install this package: npm i ts-node
+- npx tsx file.ts
 
 
