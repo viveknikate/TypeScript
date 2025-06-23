@@ -1,0 +1,248 @@
+- https://github.com/basarat/typescript-for-professionals
+- Check versions
+    node --versions
+    node -v
+
+    npm --versions
+    npm -v
+
+    npx --versions
+    npx -v
+
+- Create new project
+    mkdir intro
+    cd intro
+    npm init -y
+
+- npx tsc --init --rootdir src --outdir lib
+
+- Primitive Types;
+    1) boolean
+    2) number
+    3) string
+    4) undefined    (value is not defined)
+    5) null     (value is not present)
+    6) Symbol
+    7) bigint
+eg.
+    let isPresent: boolean = false;
+    let magic: number = 20
+    let notDefine: undefined = undefined;
+    let notPresent: null = null;
+    // let penta: Symbol = Symbol('star');
+    // let bigg: bigint = 24n;
+
+    console.log(isPresent);
+    console.log(magic);
+    console.log(notDefine);
+    console.log(notPresent);
+    // console.log(penta);
+    // console.log(bigg);
+
+- Arrays:
+    let regex: RegExp = new RegExp('ab+c');
+    let arr1: Array<number> = [1,2,3];
+    let arr2: number[] = [1,2,3,4,5,6,7,8,9,10];
+    // let set: Set<number> = new Set([1,2,3]);
+
+    console.log(regex);
+    console.log(arr1);
+    console.log(arr2);
+    // console.log(set);
+
+- Tuple:
+    let t: [number, number] = [1,2];
+    console.log(t);
+
+    t = [10, 50];
+    console.log(t);
+
+    // wrong
+    // t = [1];                // must have 2 elements
+    // t = [1,2,3];
+
+    // t = ['c', 2];       // must have both element of type number
+
+- Type Alias:
+    type Point = {x: number, y: number};
+
+    let p1: Point = {x:1, y:2};
+    let p2: Point = {x:3, y:22};
+
+    // const p3: Point = {xx:2, y:3};  // wrong
+    const p4: Point = {x:2, y:3};
+    // p4 = {x:20, y:30};              // const cannot be re-assigned but
+    p4.x = 100;
+    p4.y = 200;
+
+    console.log(p1);
+    console.log(p2);
+    console.log(p4);
+
+- Function:
+    function add(a: number, b: number): number{
+        return a+b;
+    }
+
+    function log(message: string): void{
+        console.log(message);
+    }
+
+    function sum(...values: number[]): number{
+        return values.reduce((a,b)=> {
+            return a+b
+        });
+    }
+
+    console.log(add(1,2));
+    log("hello");
+    console.log(sum(1,2,3,4));
+    console.log(sum(1,23));
+
+    // first class function
+    type ADD = (a: number, b: number) => number;
+
+    let add1: ADD = (a,b) => {
+        return a+b;
+    }
+    let add2: ADD = (a,b)=> {
+        return a+b;
+    }
+    console.log(add1(10,22));
+    console.log(add2(1,2));
+
+- Structural:
+    type User = { id: string};
+    type Product = { id: string};
+
+    let user: User = {id: '1'};
+    let product: Product = {id: '2'};
+
+    // this is ok, both have same structure
+    console.log(product);
+    product = user
+    console.log(product);
+
+    type Point2D = {x: number, y: number};
+    type Point3D = {x: number, y: number, z: number};
+    let a: Point2D = {x:1, y:2};
+    let b: Point3D = {x:3, y:22, z:33};
+    console.log(a);
+    a = b;
+    console.log(a);         // extra info is ignored
+
+    // b = a;              // wrong: require z parameter which doesn't exist in Point2D
+
+- Class:
+    - in Js structure is:
+    - all method of class are public by default
+        class Animal{
+            name;
+            constructor(name){
+                this.name = name;
+            }
+
+            move(distanceInMeters){
+                console.log(`${this.name} moved ${distanceInMeters}m.`);
+            }
+        }
+
+    - in Ts structure is:
+        class Animal{
+            private name: string;
+            protected age: number;
+            constructor(name: string, age: number){
+                this.name = name;
+                this.age = age
+            }
+
+            public move(distanceInMeters: number){
+                console.log(`${this.name} moved ${distanceInMeters}m.`);
+            }
+        }
+
+        let animal = new Animal('Cat', 20);
+        animal.move(10);
+
+        // animal.name = 'Dog';         // wrong its private
+        animal.move(20);
+
+        class Bird extends Animal{
+            fly(distanceInMeters: number){
+                console.log(`I'm bird my age: ${this.age} flew ${distanceInMeters}m.`);
+            }
+        }
+        let bird = new Bird('Parrot', 10);
+        bird.fly(10);
+
+- Compiler option (tsconfig.json)
+    - target: specify the target JavaScript version(ES5 or ES6, generates js file from ts in target version) inside compilerOptions inside tsconfig.json file
+
+- any & unknown:
+    let exampleAny: any;
+    let exampleUnknown: unknown;
+
+    exampleAny = 10;
+    console.log(exampleAny);
+    exampleAny = "world";
+    console.log(exampleAny);
+
+    exampleUnknown = 23;
+    console.log(exampleUnknown);
+    exampleUnknown = "Hello";
+    console.log(exampleUnknown);
+
+    // any
+    exampleAny.allows.anything.you.can.imagine();
+    let anyBool: boolean = exampleAny;          // allows you to assign this value to any type of variable
+
+    // you can do this unless the type is known
+    // exampleUnknown.trim();
+    // let anyBool2: boolean = exampleUnknown;
+
+    // to do trim() first check is it string
+    if(typeof exampleUnknown === 'string'){
+        exampleUnknown = exampleUnknown.trim();
+    }
+
+    if(typeof exampleUnknown === 'boolean'){
+        let unknownSetBool: boolean = exampleUnknown;
+    }
+
+- Why any type added to the typescript in type system
+ -> is to allow easy migration of JavaScript code to typescript
+    eg. 
+        1) simple JS code without any type (default is any type) QUICK FIX MIGRATION FROM JS TO TS
+        let someLegacyVar;
+        someLegacyVar = " hello   ";
+        someLegacyVar = 123;
+        console.log(someLegacyVar.trim());          // runtime error
+        console.log(someLegacyVar.toFixed(2));
+
+        2) // better use unknown type: HAVE TIME TO DO MORE RELIABLE RE-FACTORING OR DEALING WITH CODE THAT YOU DON'T TRUST USE unknown
+        let someLegacyVar: unknown;
+        someLegacyVar = 123;
+        someLegacyVar = " hello   ";
+
+        if(typeof someLegacyVar === 'string'){
+            console.log(someLegacyVar.trim());
+        }
+
+        someLegacyVar = " hello   ";
+        someLegacyVar = 123;
+        if(typeof someLegacyVar === 'number'){
+            console.log(someLegacyVar.toFixed(2));
+        }
+
+-  creating react application
+    npx create-react-app .    (which creates all boiler plate code that we need to create a react application)
+    
+
+
+
+
+
+
+
+
+

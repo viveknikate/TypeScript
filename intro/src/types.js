@@ -1,0 +1,12 @@
+var isPresent = false;
+var magic = 20;
+var notDefine = undefined;
+var notPresent = null;
+// let penta: Symbol = Symbol('star');
+// let bigg: bigint = 24n;
+console.log(isPresent);
+console.log(magic);
+console.log(notDefine);
+console.log(notPresent);
+// console.log(penta);
+// console.log(bigg);

@@ -1,0 +1,13 @@
+"use strict";
+let isPresent = false;
+let magic = 20;
+let notDefine = undefined;
+let notPresent = null;
+let penta = Symbol('star');
+let bigg = 24n;
+console.log(isPresent);
+console.log(magic);
+console.log(notDefine);
+console.log(notPresent);
+console.log(penta);
+console.log(bigg);
