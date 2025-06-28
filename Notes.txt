@@ -1,3 +1,6 @@
+---------------------------------------------------------------------------------------------------
+#Basics:
+---------------------------------------------------------------------------------------------------
 - https://github.com/basarat/typescript-for-professionals
 - Check versions
     node --versions
@@ -320,5 +323,481 @@ eg.
     node file_name.js
 - install this package: npm i ts-node
 - npx tsx file.ts
+---------------------------------------------------------------------------------------------------
+#Intermediate:
+---------------------------------------------------------------------------------------------------
+this keyword:
+    1) calling context:
+        in below example the growOld is not an arrow function
+        this keyword wont work with arrow and bound function
+    2) lexically scoped
+    class Person {
+        private _age: number
+        constructor (age: number){
+            this._age = age;
+        }
+        growOld(){
+            this._age++;
+        }
+        age(){
+            return this._age;
+        }
+    }
+    const person = new Person (0);
+    person.growOld();
+    const grow = person.growOld;
+    grow();         // this word will be undefined here
+    console. log("age: ", person.age());           // this work as expected
+
+- Readonly modifire:
+    - readonly is compile time error checking doesn't required runtime JavaScript support.
+    type Point2D = {
+        x: number;
+        y: number
+    };
+    const p1: Point2D = {x: 1, y: 2};
+
+    // variable assignment
+    // p1 = {x: 3, y: 22};         // not allowed
+
+    // property assignment
+    p1.x = 3;
+    p1.y = 22;          // although it should not work, but it works
+
+    // for that use this readonly modifire
+    type Point3D = {
+        readonly x: number;
+        readonly y: number;
+        readonly z: number;
+    }
+
+    const p2: Point3D = {x: 3, y: 22, z: 33};
+
+    // now variable assignment is not allowed
+    // p2 = {x: 3, y: 22, z: 33};      // not allowed
+
+    // along with property assigment also not allowed
+    // p2.x = 37;                       // not allowed
+    // p2.y = 13;                       // not allowed
+    // p2.z = 30;                       // not allowed
+
+    // but you can read them but not re-assign
+    console.log(`p1: ${p1}`);           // p1: [object Object]
+    console.log(`p2: ${p2}`);
+
+    console.log(`p2: ${p2.x}`);
+    console.log(`p1: ${p1.x}`);
+
+    // to print whole data use json.stringify
+    console.log(`p1: ${JSON.stringify(p1)}`);       // p1: {"x":3,"y":22}
+    console.log(`p2: ${JSON.stringify(p2)}`);       // p2: {"x":3,"y":22,"z":33}
+
+    class Animal{
+        name: string;
+        constructor(name: string){
+            this.name = name;
+        }
+    }
+
+    const sheep = new Animal('Sheep');
+    console.log(sheep.name);        // allowed
+    sheep.name = 'Modified';        // shouldn't be happening but value changed to avoid this use readonly modifire for name
+    console.log(sheep.name);
+
+    class Person{
+        readonly name: string;
+        constructor(name: string){
+            this.name = name;
+        }
+    }
+
+    const per1 = new Person('Vivek');
+    console.log(per1.name);
+    // per1.name = 'new one';          // not allowed  
+
+- Union Types:
+    Union are simply a set of types separated by | (pipe) operator
+    const words: string | string[];         // this is might be one string or array of string
+    const padding: number | string;
+
+    type padding =                  // for multi-line type the first | is optional. just for code-readability
+        | number
+        | string
+
+- Literal Types:
+    let direction: "up" | "down" | "left" | "right";
+    // direction = "one";   // not allowed
+    direction = "down";   // only above mentioned values are allowed
+
+    // or
+    type CardinalDirection = "up" | "down" | "left" | "right";
+    let direction1: CardinalDirection = 'up'
+    console.log(direction1);
+
+    type DiceValues = 1 | 2 | 3 | 4 | 5 | 6;
+    let diceValue: DiceValues = 6;
+    console.log(Math.floor(Math.random() * 6) + 1 as DiceValues);
+
+- Type narrowing:
+    class Cat {
+        meow(){
+            console. log ('meow');
+        }
+    }
+    class Dog{
+        bark(){
+            console. log ("woof");
+        }
+    }
+    type Animal = Cat | Dog;
+
+    // confirming the object's type. using instanceof operator
+    function speak(animal: Animal) {
+        if (animal instanceof Cat){
+            animal.meow();
+        }
+        if (animal instanceof Dog){
+            animal.bark();
+        }
+    }
+
+    type Square = {
+        size: number;
+    };
+
+    type Rectangle = {
+        width: number;
+        height: number;
+    };
+
+    type Shape = Square | Rectangle;
+    // here we are using the 2 different types, they are not class so we can't use instanceof operator
+    // instead of we can use in operator
+    function getArea(shape: Shape): number {
+        if ("size" in shape) {
+            return shape.size * shape.size;
+        }
+        if('width' in shape && 'height' in shape){
+            return shape.width * shape.height;
+        }
+        return 0;
+    }
+
+    const c = new Cat();
+    const d = new Dog();
+
+    console.log("Square area is: ", getArea({size: 10}));
+    console.log("Rectangle area is: ", getArea({width: 10, height: 20}));
+    console.log("Dog: ");
+    speak(d)
+    console.log("Cat ");
+    speak(c);
+
+- Discriminated Unions:
+    type Square1 = {
+        kind:'square';
+        size: number;
+    };
+
+    type Rectangle1 = {
+        kind:'rectangle';
+        width: number;
+        height: number;
+    };
+
+    type Circle ={
+        kind:'circle';
+        radius: number;
+    }
+
+    type Shapes = Square1 | Rectangle1 | Circle;
+
+    function getArea1(shape: Shapes): number {
+        if (shape.kind === 'square') {
+            return shape.size * shape.size;
+        }else if(shape.kind === 'rectangle'){
+            return shape.width * shape.height;
+        }else if(shape.kind === 'circle'){
+            return Math.PI * shape.radius * shape.radius;
+            // return Math.PI * shape.radius ** 2;
+        }else{
+            throw new Error('Invalid shape');
+        }
+    }
+
+    console.log("Square area is: ", getArea1({kind:'square', size: 10}));
+    console.log("Rectangle area is: ", getArea1({kind:'rectangle', width: 10, height: 20}));
+    console.log("Circle area is: ", getArea1({kind:'circle', radius: 10}));
+
+    // or
+    type ValidationSuccess = {
+        isValid: true;
+        SuccessMessage: string;
+    }
+
+    type ValidationFailure = {
+        isValid: false;
+        FailureMessage: string;
+    }
+
+    type ValidationResult = ValidationSuccess | ValidationFailure;
+
+    const success: ValidationResult = {isValid: true, SuccessMessage: 'Success'};
+    const failure: ValidationResult = {isValid: false, FailureMessage: 'Failure'}
+
+    function CheckValid(input: ValidationResult){
+        if(input.isValid){
+            console.log(input.SuccessMessage);
+        }else if(input.isValid === false){
+            console.log(input.FailureMessage);
+        }else{
+            throw new Error('Invalid result');
+        }
+    }
+    CheckValid(success);
+    CheckValid(failure);
+
+- class parameter properties:
+    // directly declared & initialized inside constructor
+    class person{
+        constructor(public name: string, public age: number){}
+    }
+    const p1 = new person('adam', 90);
+    console.log(p1.name); // adam
+
+- strict compiler option
+    - by default its set to true inside tsconfig.json file
+    - to generate tsconfig.json file use npx tsc --init
+
+- undefined & null:
+    - JavaScript runtime has 2 types to indicate the absence of value
+    - if something has not been initialized then return undefined
+    - if something is currently unavailable then return null
+eg.
+    let notDefine: undefined = undefined;
+    let notPresent: null = null;
+
+    class Point{
+        x:number;
+        y:number;
+    }
+
+    let p: Point = new Point();
+    p.x = 1;
+    // p.y = 2;
+    console.log(p.y);       // undefined
+
+    function f(x: number) {
+        if(x < 10) return x;
+        return null;
+    }
+
+    console.log(f(11));
+
+    console.log(null == null);      // true
+    console.log(undefined == undefined);    // true
+
+    console.log(undefined == null);     // true
+
+    console.log(false == null);    // false
+    console.log(false == undefined);    // false
+    console.log(0 == null);         // false
+    console.log('' == null);        // false
 
 
+    function decorate(value: string | null | undefined): string {
+        if(value == null) return 'NULL';
+        return `--------${value.trim()}--------`;
+    }
+
+    console.log("Passing NULL: ", decorate(null));                                   // Passing NULL:  NULL
+    console.log("Passing UNDEFINED: ", decorate(undefined));                         // Passing UNDEFINED:  NULL
+    console.log("Passing String: ", decorate("           Hlleo           "));        // Passing String:  --------Hlleo--------
+
+- Intersection types:
+    type Point2D ={
+        x:number;
+        y:number;
+    }
+
+    // type Point3D ={
+    //     x: number;
+    //     y: number;
+    //     z: number;
+    // }
+
+    type Point3D = Point2D & {
+        z: number                // intersection of Point2D and Point3D
+    }
+
+    type Person = {
+        name: string;
+    }
+    type Email = {
+        email: string;
+    }
+
+    type Phone = {
+        phone: string;
+    }
+
+    // function contact(details: any) {
+    function contact(details: Person & Email & Phone) {                 // calling with specific type
+        console.log(details.name, "\t", details.email, "\t", details.phone);
+    }
+
+    contact({ name: "Vivek", email: "vivek@me.com", phone: "1234567890" });
+
+    // also we can do this
+    type ContactDetails = Person & Phone & Email;
+    // just for code-redability
+    type ContactDetails2 = 
+        & Person 
+        & Phone
+        & Email;
+
+- Optional Modifire:
+    type Person = {
+        name: string;
+        mail: string;
+        phone?: string;             // optional modifier
+    }
+
+    const p1: Person = {
+        name: 'vivek',
+        mail: 'vivek@gmail.com',
+        phone: '123',
+    }
+
+    const p2: Person = {
+        name: 'Nikate',
+        mail: 'Nikate@gmail.com',
+        phone: undefined
+    }
+
+    console.log(p1, p2);
+    console.log("p1.name: ", p1.name);
+    console.log("p1.mail: ", p1.mail);
+    console.log("p1.phone: ", p1.phone);            // if present then prints its value, else undefined
+
+    console.log("p2.name: ", p2.name);
+    console.log("p2.mail: ", p2.mail);
+    console.log("p2.phone: ", p2.phone);            // if present then prints its value, else undefined
+
+    class Point{
+        x?: number;
+        y?:number;
+        z?: number | null;
+    }
+
+    const p = new Point();
+    p.x = 1;
+    p.y = 0;
+    p.y = undefined;
+    // p.x = null;         // null is not supported
+
+    // to support the null we need to explicitly mention the type.
+    p.z = null;
+    console.log(p);
+
+- Non null assertion:
+    type Point = {
+        x: number;
+        y: number;
+    };
+
+    let p: Point;
+    function initializePoint(){
+        p = {x:1, y:2};
+    }
+
+    initializePoint();
+    // if we are sure that the value must present then we can use ! non-null assertion
+    console.log(p!.x);           // here its undefined but actually we defined, so we can use ! non-null assertion
+    console.log(p!.y);           // here its undefined but actually we defined, so we can use ! non-null assertion
+
+    type Person = {
+        name: string;
+        email?: string | null;
+    }
+    const p1: Person = {name:'v', email:'v@v.com'}
+    const p2: Person = {name:'G'};
+
+    function ensureContactable(p: Person){
+        if(p.email == undefined) throw new Error(`Person ${p1.name} is not contactable`);
+    }
+
+    function SendOutMail(p: Person){
+        ensureContactable(p);
+        console.log(`Sending mail to ${p!.email}`);
+        // The ! after p tells TypeScript: "I am sure that p is not null or undefined."
+        console.log(`Sending mail to ${p.email!}`);
+        // The ! after email tells TypeScript: "I am sure that email is not null or undefined."
+    }
+
+    SendOutMail(p1);
+    SendOutMail(p2);            // Person v is not contactable
+
+- Interfaces:
+    type Point2D = {
+        x:number;
+        y:number;
+    }
+
+    type Point3D = Point2D & {
+        z: number                // intersection of Point2D and Point3D
+    }
+
+    export const p1: Point3D = {
+        x:1,
+        y:2,
+        z:3
+    }
+
+    // in same way as type we can use interfaces, difference is '=' operator & extends keyword
+    interface Point2D1 {
+        x: number;
+        y: number;
+    }
+
+    interface Point3D1 extends Point2D1 {
+        z: number;
+    }
+
+    export const p2: Point3D1 = {
+        x:1,
+        y:2,
+        z:3
+    }
+
+- inface declaration merging:
+    - this doesn't work with type alias
+    export interface Request {
+        body: any;
+    }
+    export interface Request {
+        json: any;
+    }
+
+    function handleRequest(req: Request) {
+        console.log(req.body);
+        console.log(req.json);
+    }
+    handleRequest({ body: 1, json: 2 });
+
+- Type & interface:
+    Types supports:                 Interfaces supports:
+    Unions                           Declaration Merging
+    Intersections (&)                Familiarity (extends)
+    Primitives
+    Shorthand Functions
+    Advanced Tune Functions
+
+- Type: never
+---------------------------------------------------------------------------------------------------
+#Advance:
+---------------------------------------------------------------------------------------------------
+- Implements keyword:
+    
+
+---------------------------------------------------------------------------------------------------
