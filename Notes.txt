@@ -798,6 +798,396 @@ eg.
 #Advance:
 ---------------------------------------------------------------------------------------------------
 - Implements keyword:
-    
+    type animal = {
+        name: string;
+        voice(): void;
+    }
+
+    class Cat implements animal{
+        constructor(public name: string){}
+        voice(): void {
+            console.log('Meow');
+        }
+    }
+
+    class Duck implements animal{
+        constructor(public name: string){}
+        voice(): void{
+            console.log('quack');
+        }
+    }
+    const c = new Cat('Cat');
+    const d = new Duck('Duck');
+    console.log(c.name);
+    console.log(d.name);
+
+    d.voice();
+    c.voice();
+
+- Definitely Assignment Assertion:
+    let dice: number;
+    function rollDice(){
+        dice = Math.floor(Math.random()*6)+1;
+    }
+
+    rollDice()
+    console.log("Value is: ", dice!);        // here we are getting the error so using !
+
+    // we are logging again so that we can see the value
+    rollDice()
+    console.log("Value is: ", dice!);
+
+    // again we are getting the same erorr
+    // to overcome above issue we can use ! when we declare the variable
+
+    // we are sure that before using that dice2 value it must be defined ( we'll for sure assign some value to it)
+    let dice2!: number;
+    function rollDice2(){
+        dice = Math.floor(Math.random()*6)+1;
+    }
+
+    rollDice()
+    console.log("Value is: ", dice2);        // here we are getting the error so using !
+
+    // we are logging again so that we can see the value
+    rollDice()
+    console.log("Value is: ", dice2);
+
+    class Point{
+        x!: number;
+        y!: number;
+        constructor(){
+            this.moveRandom();
+        }
+        moveRandom(){
+            this.x = Math.random();
+            this.y = Math.random();
+        }
+    };
+
+- User Defined Type guards:
+    type Square ={
+        size: number;
+    };
+
+    type Rectangle = {
+        width: number;
+        height: number;
+    };
+    type Shape = Square | Rectangle;
+
+    const isSquare = (shape: Shape): shape is Square => 'size' in shape         // if its one line code, then no need to use return
+
+    // function isSquare (s1: Shape): s1 is Square {
+    //     return 'size' in s1;
+    // }
+
+    const isRectangle = (shape: Shape): shape is Rectangle => 'width' in shape;
+
+    function getArea(shape: Shape) : number {
+        if(isSquare(shape)) return shape.size * shape.size;
+        if(isRectangle(shape)) return shape.height * shape.width;
+        return 0;
+    }
+
+    console.log(getArea({size: 10}));
+    console.log(getArea({width: 10, height: 20}));
+
+- Assertion Function:
+    - Assertion function used while developing & testing
+    type Person = {
+        name: string;
+        DOB?: Date;
+    };
+
+    function loadPerson(): Person | null{
+        // return {name:'sdf', DOB: new Date()};
+        return null;
+    }
+    const mayBePerson = loadPerson();
+    function checkAssert(isPossible: unknown, message: string): asserts isPossible{
+        if(!isPossible) throw new Error(message);
+    }
+
+    checkAssert(mayBePerson != null, "unable to fetch data")
+    // here before accessing name we need to check for null
+    console.log("Name is: ", mayBePerson.name);
+
+    function CheckDate(dateValue: unknown, message: string): asserts dateValue is Date{
+        if(!(dateValue instanceof Date)) throw new TypeError(message);
+    }
+
+    CheckDate(mayBePerson.DOB, 'not Date');
+    console.log("DOB is: ", mayBePerson.DOB.toISOString());
+
+- Function Overloading: read online
+
+- Function:
+    type Add = {
+        (a: number, b: number): number,
+        (a: number, b: number, c: number): number,
+        debugName?: string,
+    };
+
+    const add: Add = (a: number, b: number) => a + b;
+    add.debugName = 'Addition with 2 values'
+    console.log(add(1, 2));
+    console.log(add.debugName);
+
+    const add2: Add = (a: number, b: number, c?: number) => a + b + (c != null ? c : 0);
+    add2.debugName = 'With 3'
+    console.log(add2(1, 2, 3));
+    console.log(add2.debugName);
+
+    type PointCreator = {
+        // class
+        new (x:number, y:number) : {x: number, y: number}
+        // class - 2
+        new (x:number, y:number, z:number) : {x: number, y: number, z:number},
+
+        // fun-1
+        (x:number, y:number) : number;
+        // fun-2
+        (x:number, y:number, z:number) : number;
+        // attribute
+        debugName?: string
+    }
+
+- Abstract class:
+    - we just declare the things here.
+    abstract class CommandLine {
+        abstract command(): string;                 // this is just function declaration.
+        execute(){
+            console.log('executing command', this.command());
+        }
+    }
+
+    // we can't create the object of abstract class as it only contains the declaration of function not their actually value
+    //  we can create the object of class which is extending the abstract class. like below
+
+    class git1 extends CommandLine {
+        command(): string {
+            return 'git1';
+        }
+    }
+
+    class git2 extends CommandLine{
+        command(): string {
+            return "git2";
+        }
+    }
+
+    new git1().execute();
+    new git2().execute();
+
+    // can't 
+    // new CommandLine().execute();
+
+- index signature:
+    const str = {
+        hello: 'world',
+    };
+    console.log(str.hello);
+    console.log(str['hello']);
+
+    type Perosn = {
+        name: string;
+        age: number;
+        email: string;
+    }
+
+    type PersonDictionary = {
+        [username: string]: Perosn;
+    }
+
+    const user1: PersonDictionary = {
+        Vivek:{
+            name: 'Vivek',
+            age: 30,
+            email: 'vivek@me.com',
+        }
+    }
+
+    user1['Mahesh'] = {
+        name:'Mahesh',
+        email: 'mahesh@me.com',
+        age: 25,
+    }
+
+    console.log(user1);
+    console.log(user1.Vivek);
+    console.log(user1['Vivek']);
+    console.log(user1['Mahesh']);
+    console.log(user1.tt);          // if not defined before it comes as undefined so use ?
+    console.log(user1.tt ? user1.tt : 'not defined');
+
+- Readonly:
+    function reverseSorted(input: readonly number[]): number[] {
+        // return input.sort().reverse();  // this will change the original array
+        return input.slice().sort().reverse();  // slice is to create the copy of original array
+    }
+    const numbers = [1, 2, 3, 4, 5];
+    const res = reverseSorted(numbers);
+    console.log(res);
+    console.log(numbers);
+
+    type Neat = readonly number[];
+    type Long = ReadonlyArray<number>;
+
+    type Point = readonly [x: number, y: number];
+
+    const p1: Point = [0, 0]
+    function move(p: Point, x: number, y: number) {
+        return [p[0] + x, p[1] + y];                // this will not mutate the original tuple
+        // p[0] += x;
+        // p[1] += y;
+        // return p;
+    }
+    const p2 = move(p1, 10, 10);
+    console.log(p1);                // it shouldn't be changing so make the point readonly
+    console.log(p2);
+
+- Double Assertion:
+    type Point2D = {
+        x: number;
+        y: number;
+    };
+
+    type Point3D = {
+        x: number;
+        y: number;
+        z: number;
+    }
+
+    let p1: Point2D = {x: 1, y: 2};
+    let p2: Point3D = {x: 1, y: 2, z: 3};
+
+    // so we can, coz all things are present there in p2 required for p1
+    p1 = p2;
+
+    // but p2 != p1, doesn't contains last value z in p1 required for p2
+    // p2 = p1; // getting error
+
+    // we can say trust me its safe
+    p2 = p1 as Point3D
+
+    type person = {
+        name: string;
+        email: string;
+    }
+
+    let a1: person = {name: 'v', email: 'v@v.com'}
+
+    // here 
+    // a1 = p1 as person   // single assertion is not working coz there is no common property between a1 and p1
+    a1 = p1 as unknown as person;       // double assertion, error gone
+    // we can assign any variable type to unknown & unknown can be asserted to anything, use with Caution 
+
+- Const Assertion:
+    - const declaration for string or number in JavaScript are immutable
+    - but object and array are mutable even if they are declared as const
+    - to behave the object as const we can declare the type for them. or other way ' as const ' at the end of object as assertion
+    eg.
+        const name1 = "Vivek";
+        console.log(name1);
+        // name = "Nikate";            // not allowed
+
+        const num = 123;
+        console.log(num);
+        // num = 456;                  // not allowed
+
+        const dev = {
+            name: 'Vivek',
+            age: 21,
+        }
+
+        console.log(dev);
+        // dev = {                         // direct assignment not allowed, but
+        //     name: 'Nikate',
+        //     age: 22,
+        // }
+
+        // this is allowed, but it shouldn't.
+        dev.name = 'Nikate';
+        dev.age = 22;
+
+        // to avoid above use const assertion
+        const dev1 = {
+            name: 'Pointer',
+            age: 1001,
+        } as const;
+
+        console.log(dev1);
+        // dev1.name = 'Nikate';           // not allowed
+        // dev1.age = 2002;                  // not allowed
+
+        function layout(setting: {
+            align: 'left' | 'right' | 'center';
+            padding: number;
+        }){
+            console.log(setting);
+        }
+
+        const example = {
+            align: 'left' as const,      // or use here
+            padding: 20,
+        } // as const
+
+        layout(example);            // getting error if we remove as const assertion from example variable
+
+        layout({
+            align:"center",
+            padding: 10,
+        })
+
+- Generic constraints:
+
+- Uncertainity:
+    let example: string | null = 'hello';
+    if(example != null){
+        let example1: string = example.toUpperCase();
+        ['a', 'b', 'c'].forEach((item) => {
+            let example2: string = item + example.toUpperCase();            // to avoid this
+            console.log(example2);
+        });
+
+        ['a', 'b', 'c'].forEach((item) => {
+            let example2: string = item + example1.toUpperCase();            // store variable in local scope example1
+            console.log(example2);
+        })
+    }
+---------------------------------------------------------------------------------------------------
+#Expert:
+---------------------------------------------------------------------------------------------------
+- Type of type operator:
+    const center = {
+        x: 10,
+        y: 20,
+        z: 30,
+    };
+
+    type Point = typeof center;
+
+    const point1: Point = {
+        x: 1,
+        y: 2,
+        z: 3,
+    };
+
+    const response = {
+        "name" : "Vivek",
+        "email" : "vivek@me.com",
+        "phone" : "1234567890",
+        "age" : 20,
+    }
+
+    type responseType = typeof response;
+
+    function handle(res: responseType){
+        console.log(res.name, " ", res.email);
+    }
+
+- 
+
 
 ---------------------------------------------------------------------------------------------------
