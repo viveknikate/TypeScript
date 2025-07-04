@@ -1187,7 +1187,338 @@ eg.
         console.log(res.name, " ", res.email);
     }
 
+- LookupTypes:
+    type SubmitRequest = {
+        name: string;
+        email: string;
+        age: number;
+        id: number;
+        address: {
+            street: string;
+            city: string[];
+        }
+    }
+
+    const addre1: SubmitRequest['address'];
+    const citiesLived = SubmitRequest['address']['city'][0];            // retriving first city
+
+- keyof Operator:
+    type Person = {
+        name: string;
+        email: string;
+        age: string;
+        location: string;
+    };
+
+    function logDetails(obj: Person, key: string){
+        const value = obj[key];
+        console.log(`The value of ${key} is: ${value}`);
+    }
+
+    logDetails({ name: 'Vivek', email: 'vivek@gmail', age: '22', location: 'Delhi' }, 'one');           // undefined
+
+    function logDetails2(obj: Person, key: 'name' | 'email' | 'age' | 'location'){
+        const value = obj[key];
+        console.log(`The value of ${key} is: ${value}`);
+    }
+
+    // logDetails2({ name: 'Vivek', email: 'vivek@gmail', age: '22', location: 'Delhi' }, 'two');           // this will not allowed
+
+    // we reduce the repetitive work here using keyof operator
+
+    type PersonKeys = keyof Person;
+
+    function logDetails3(obj: any, key: PersonKeys){
+        const value = obj[key];
+        console.log(`The value of ${key} is: ${value}`);
+    }
+
+    // logDetails3({ name: 'Vivek', email: 'vivek@gmail', age: '22', location: 'Delhi' }, 'four');     // not allowed
+    logDetails3({ name: 'Vivek', email: 'vivek@gmail', age: '22', location: 'Delhi' }, 'name');     // not allowed
+
+    // Generic function creation:
+    function logGet<Obj, Key extends keyof Obj>(obj: Obj, key: Key): Obj[Key] {
+        return obj[key];
+    } 
+
+- conditional Types:
+    // we can create a our own custom types also
+    export type TypeName<T> = 
+        T extends number ? 'number' :
+        T extends string ? 'string' :
+        T extends undefined ? 'undefined' :
+        T extends boolean ? 'boolean' :
+        T extends symbol ? 'symbol' :
+        T extends bigint ? 'bigint' :
+        T extends Function ? 'Function' :
+        T extends null ? 'null' :
+        'object';
+
+
+    function typeName<T>(t: T): TypeName<T> {
+        if(t === null) return 'null' as TypeName<T>;            // to avoid null as object, now null considered as null
+        return typeof t as TypeName<T>;
+    }
+
+    console.log(typeName(1));
+    console.log(typeName('1'));
+    console.log(typeName(true));
+    console.log(typeName(undefined));
+    console.log(typeName(null));                // null is cosidered as object
+    console.log(typeName({}));
+
+- infer:
+    export function createPerson(first: string, last: string){
+        return {
+            name: first,
+            surname: last,
+            fullname: `${first} ${last}`,
+        }
+    };
+
+    type returnType<T> = T extends (...args: any) => infer R
+            ? R
+            : never;
+
+    type Perons = returnType<typeof createPerson> 
+    // using our own returnType
+    function logDetails(obj: returnType<typeof createPerson>){
+        console.log(obj.name, obj.surname, obj.fullname);
+    }
+    
+    // Built-in ReturnType
+    function logDetails(obj: ReturnType<typeof createPerson>){
+        console.log(obj.name, obj.surname, obj.fullname);
+    }
+
+    logDetails(createPerson('Vivek', 'Nikate'));
+
+- mapped Types:
+    type Point = {
+        x: number;
+        y: number;
+        z: number;
+    };
+
+    const center: Point = {
+        x:10,
+        y:20,
+        z:30,
+    };
+
+    // here I am able to change the values of center property
+    center.x = 100;         // but this should not happen to avoid this
+
+    type ReadonlyPoint = {
+        readonly x: number;
+        readonly y: number;
+        readonly z: number;
+    };
+
+    // we can use above property, but code repetition.
+    // DRY (Don't Repeat Yourself)
+    type ReadonlyPointMapped = {
+        readonly [K in 'x'|'y'|'z']: number;
+        // readonly [K in keyof Point]: Point[K];
+    }
+
+    const center2: ReadonlyPointMapped = {
+        x:10,
+        y:20,
+        z:30,
+    }
+
+    // center2.x = 100;         // this is not allowed now.
+
+    // creating generic type
+
+    // This Generic is already there in Typescript
+    type ReadonlyPointGeneric<T> = {
+        readonly [K in keyof T]: T[K];
+    }
+
+    const center3: ReadonlyPointGeneric<Point> ={
+        x:10,
+        y:20,
+        z:30,
+    }
+    // center3.x = 100;        // not allowed
+
+    const center4: Readonly<Point> ={
+        x:10,
+        y:20,
+        z:30,
+    }
+
+    console.log(center4.x);
+    // center4.z = 12;     // not allowed
+
+- mapped modifire:
+    type Point = {
+        readonly x: number;
+        y?: number;
+    }
+
+    type Mapped<T> = {
+        // readonly [K in keyof T]: T[K];          
+        // -readonly [K in keyof T]: T[K];              // - sign at start will remove readonly modifire if its there in type
+        // +readonly [K in keyof T]: T[K];              // + sign at start is just for readability
+        // +readonly [K in keyof T]?: T[K];              // ? sign at end to treat all variable as optional
+        // +readonly [K in keyof T]-?: T[K];              // - sign before ? is to remove all optional sign from type treat as mandatory 
+    }
+
+    type T1 = Mapped<Point>
+
+- Template Literal:
+    string with single quote 'asdfwer'
+    string with double quote "asdfwer"
+    string with template literal `asdfwer ${value}`
+    eg.
+        type CSSValue = 
+        | number
+        | string
+        | `${number}px`
+        | `${number}em`
+        | `${number}rem;`
+
+
+        // create type combination of size & color
+        // size = small or medium or large
+        // color = primary or secondary
+
+        type Size = 'small' | 'medium' | 'large';
+        type Color = 'primary' | 'secondary';
+
+        type CombineType = `${Size}-${Color}`;
+
+        function Check(input: CombineType){
+            console.log(input);
+        }
+
+        Check('small-secondary')
+        Check('small-primary')
+        Check('medium-primary');
+        // Check('werelwj')            // ERRor
+---------------------------------------------------------------------------------------------------
+#Super:
+---------------------------------------------------------------------------------------------------
+- Create a type which makes all properties in Type T as optional:
+    type Point = {
+        x: number;
+        y: number;
+        z: number;
+        name: string;
+        FavColor: 'Red' | 'Green' | 'Blue';
+    }
+
+    let p1: Point;                  // all mandatory property    
+
+    type Partials<T> = {
+        [K in keyof T]?: T[K];
+    }
+
+    type Optional = Partials<Point>;            // all optional property
+    let p2: Optional;
+
+- Required<T>:
+    type circleConfig = {
+        color?: string;
+        radius?: number;
+    }
+
+    class circle {
+        private config: Required<circleConfig>;         // here we are making the config as required
+        constructor(config: circleConfig) {
+            this.config = {
+                color: config.color ?? 'Black',
+                radius: config.radius ?? 100,
+            };
+        }
+        draw(){
+            console.log(`My Color is: ${this.config.color} and radius is: ${this.config.radius}`);
+        }
+    }
+
+    const c1 = new circle({color: 'Red'});
+    const c2 = new circle({radius:56});
+
+    console.log("C1: ", c1);
+    console.log("C2: ", c2);
+
+- Readonly<T>:
+    type Point = {
+        x: number;
+        y: number;
+    };
+
+    const center: Readonly<Point> = {
+        x: 12,
+        y: 29
+    }
+
+    console.log(center);
+    // values are read-only, can't be changed
+    // center.x = 45;          // not allowed
+
+- Record<K,V>:
+    type Person = Record<string, {name: string, role: string}>;
+    const person: Person = {};
+    person['000'] = {name:'john', role:'admin'}
+    person['111'] = {name:'jane', role:'owner'}
+
+    type PageInfo = {
+        id: string,
+        name: string,
+    }
+
+    type Page = {
+        Home: PageInfo,
+        About: PageInfo,
+        Contact: PageInfo
+    };
+
+    // instead of above code
+    type page = Record<'home' | 'about' | 'contact', PageInfo>;
+
+- auto complete trick:
+    type padding1 = 'small' | 'medium' | 'large' | string;
+    // its not giving auto complete
+    const padd1: padding1 = 'small';
+    const padd2: padding1 = '80px';
+
+    // to give autoc complete while typing
+    type padding2 = 'small' | 'medium' | 'large' | (string & {});
+    const padd3: padding2 = 'large';
+    const padd4: padding2 = 'medium';
+
+- satisfies type
+    type Perons = {
+        name: string;
+        age: number;
+        occupation: string;
+    }
+
+    const person = {
+        name: 'vivek',
+        age: 45,
+        occupation: 'developer'
+    } satisfies Perons              // is equivalent to type Perons or not checking
+
+
+    const person2 = {
+        name: 'vivek',
+        age: 45,
+    } satisfies Perons          // this doesn't so giving error
+
+    // or else you can do
+
+    const per3 = {
+        name: 'vivek',
+        age: 45,
+        occupation: 'developer'
+    }
+
+    const p4: Perons = per3;            // i'm able to assign per3 to p4, so per3 is type of person
+
 - 
-
-
 ---------------------------------------------------------------------------------------------------
